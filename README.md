@@ -1,4 +1,4 @@
-# Template
+# KanjiControl
 
 <!-- Add a banner here like: https://github.com/StephanAkkerman/fintwit-bot/blob/main/img/logo/fintwit-banner.png -->
 
