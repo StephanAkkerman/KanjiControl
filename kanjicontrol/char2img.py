@@ -1,3 +1,5 @@
+import os
+
 from PIL import Image, ImageDraw, ImageFont
 
 
@@ -8,7 +10,6 @@ def create_japanese_character_image(
     bg_color="white",
     font_color="black",
     padding=10,
-    output_file="output.png",
 ):
     """
     Creates an image with the given Japanese character, cropped to the character's
@@ -23,6 +24,9 @@ def create_japanese_character_image(
         padding (int): Number of pixels to add around the text after cropping.
         output_file (str): Output filename for the image.
     """
+    # Create the output directory if it doesn't exist.
+    os.makedirs("output", exist_ok=True)
+
     # Create a large enough canvas to draw the text.
     canvas_size = (font_size * 2, font_size * 2)
     image = Image.new("RGBA", canvas_size, bg_color)
@@ -44,10 +48,11 @@ def create_japanese_character_image(
     right = bbox[2] + padding
     lower = bbox[3] + padding
 
+    # TODO: Save as a 512x512 image for consistency.
+
     # Crop the image to the bounding box.
     cropped_image = image.crop((left, upper, right, lower))
-    cropped_image.save(output_file)
-    print(f"Image saved to {output_file}")
+    cropped_image.save(f"output/{character}.png")
 
 
 if __name__ == "__main__":
