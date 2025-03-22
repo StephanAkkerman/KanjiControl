@@ -26,6 +26,7 @@ def create_japanese_character_image(
     """
     # Create the output directory if it doesn't exist.
     os.makedirs("output", exist_ok=True)
+    os.makedirs("output/characters", exist_ok=True)
 
     # Create a large enough canvas to draw the text.
     canvas_size = (font_size * 2, font_size * 2)
@@ -48,15 +49,29 @@ def create_japanese_character_image(
     right = bbox[2] + padding
     lower = bbox[3] + padding
 
-    # TODO: Save as a 512x512 image for consistency.
+    # Crop as before
+    cropped = image.crop((left, upper, right, lower))
 
-    # Crop the image to the bounding box.
-    cropped_image = image.crop((left, upper, right, lower))
-    cropped_image.save(f"output/{character}.png")
+    # Compute scale so the glyph fills (almost) the full 512×512
+    target_size = 512
+    scale = min(target_size / cropped.width, target_size / cropped.height)
+    new_size = (int(cropped.width * scale), int(cropped.height * scale))
+
+    # Resize the character itself
+    resized = cropped.resize(new_size, Image.LANCZOS)
+
+    # Paste it centered on a blank 512×512 background
+    final = Image.new("RGBA", (target_size, target_size), bg_color)
+    x = (target_size - new_size[0]) // 2
+    y = (target_size - new_size[1]) // 2
+    final.paste(resized, (x, y), resized)
+
+    final.save(f"output/characters/{character}.png")
 
 
 if __name__ == "__main__":
-    japanese_character = "日"  # Example Japanese character.
+    japanese_character = "木"  # Example Japanese character.
     # Replace with the path to your high-quality Japanese font.
-    font_file = "data/font.ttf"
+    font_file = "data/thin.ttf"
+    # Todo: different thickness of characters
     create_japanese_character_image(japanese_character, font_file)

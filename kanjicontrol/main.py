@@ -19,7 +19,7 @@ controlnet = ControlNetModel.from_pretrained(
 )
 
 pipe = StableDiffusionControlNetPipeline.from_pretrained(
-    "runwayml/stable-diffusion-v1-5",
+    "runwayml/stable-diffusion-v1-5",  # "SG161222/Realistic_Vision_V5.1_noVAE"
     controlnet=controlnet,
     # vae=vae,
     safety_checker=None,
@@ -48,19 +48,23 @@ def resize_for_condition_image(input_image: Image, resolution: int):
 
 # qr code image
 source_image = load_image("./output/日.png")
-condition_image = resize_for_condition_image(source_image, 768)
-generator = torch.manual_seed(123121231)
+# condition_image = resize_for_condition_image(source_image, 512)
 image = pipe(
     prompt="sun",
     negative_prompt="ugly, disfigured, low quality, blurry, nsfw",
-    image=condition_image,
-    width=768,
-    height=768,
-    guidance_scale=20,
-    controlnet_conditioning_scale=1.5,
-    generator=generator,
+    image=source_image,
+    width=512,
+    height=512,
+    guidance_scale=20,  # 0 - 50
+    controlnet_conditioning_scale=1.5,  # "Illusion strength" 0-5
+    control_guidance_start=0,
+    control_guidance_end=1,
+    generator=torch.manual_seed(123121231),
     strength=0.9,
     num_inference_steps=15,
 )
 
 image.images[0].save("output/qr_code.png")
+
+# if __name__ == "__main__":
+#     pass
