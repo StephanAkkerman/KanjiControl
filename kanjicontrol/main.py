@@ -12,24 +12,30 @@ from PIL import Image
 vae = AutoencoderKL.from_pretrained(
     "stabilityai/sd-vae-ft-mse", torch_dtype=torch.float16
 )
+
+# SD 1.5: https://huggingface.co/monster-labs/control_v1p_sd15_qrcode_monster
+# https://huggingface.co/DionTimmer/controlnet_qrcode-control_v1p_sd15
 controlnet = ControlNetModel.from_pretrained(
     "monster-labs/control_v1p_sd15_qrcode_monster",
-    torch_dtype=torch.bfloat16,
+    # subfolder="v2",
+    torch_dtype=torch.float16,
     cache_dir="models",
 )
 
+# "runwayml/stable-diffusion-v1-5"
+# "SG161222/Realistic_Vision_V5.1_noVAE"
+# SD 1.5
+# https://huggingface.co/ByteDance/Hyper-SD#sd15-related-models-1
 pipe = StableDiffusionControlNetPipeline.from_pretrained(
-    "runwayml/stable-diffusion-v1-5",  # "SG161222/Realistic_Vision_V5.1_noVAE"
+    "SG161222/Realistic_Vision_V5.1_noVAE",
+    vae=vae,
     controlnet=controlnet,
-    # vae=vae,
-    safety_checker=None,
-    torch_dtype=torch.bfloat16,
+    torch_dtype=torch.float16,
     cache_dir="models",
 ).to("cuda")
 
 pipe.enable_xformers_memory_efficient_attention()
 pipe.scheduler = DDIMScheduler.from_config(pipe.scheduler.config)
-pipe.enable_model_cpu_offload()
 
 
 def resize_for_condition_image(input_image: Image, resolution: int):
@@ -46,25 +52,27 @@ def resize_for_condition_image(input_image: Image, resolution: int):
 
 # play with guidance_scale, controlnet_conditioning_scale and strength to make a valid QR Code Image
 
+char = "木"
+
 # qr code image
-source_image = load_image("./output/日.png")
+source_image = load_image(f"./output/characters/{char}.png")
 # condition_image = resize_for_condition_image(source_image, 512)
 image = pipe(
-    prompt="sun",
-    negative_prompt="ugly, disfigured, low quality, blurry, nsfw",
+    prompt="a tree in the forest",
+    # negative_prompt="ugly, disfigured, low quality, blurry, nsfw",
     image=source_image,
     width=512,
     height=512,
     guidance_scale=20,  # 0 - 50
-    controlnet_conditioning_scale=1.5,  # "Illusion strength" 0-5
+    controlnet_conditioning_scale=1.5,  # "Illusion strength" 0-5 (1.5 is default)
     control_guidance_start=0,
     control_guidance_end=1,
     generator=torch.manual_seed(123121231),
     strength=0.9,
-    num_inference_steps=15,
+    num_inference_steps=25,
 )
 
-image.images[0].save("output/qr_code.png")
+image.images[0].save(f"output/{char}.png")
 
 # if __name__ == "__main__":
 #     pass
