@@ -8,6 +8,7 @@ from diffusers import (
 from diffusers.utils import load_image
 from PIL import Image
 
+# https://huggingface.co/spaces/AP123/IllusionDiffusion
 # https://huggingface.co/spaces/AP123/IllusionDiffusion/blob/main/app.py
 vae = AutoencoderKL.from_pretrained(
     "stabilityai/sd-vae-ft-mse", torch_dtype=torch.float16
@@ -24,8 +25,11 @@ controlnet = ControlNetModel.from_pretrained(
 
 # "runwayml/stable-diffusion-v1-5"
 # "SG161222/Realistic_Vision_V5.1_noVAE"
-# SD 1.5
-# https://huggingface.co/ByteDance/Hyper-SD#sd15-related-models-1
+# https://huggingface.co/darkstorm2150/Protogen_x5.8_Official_Release
+# https://huggingface.co/digiplay/Photon_v1
+# https://huggingface.co/RunDiffusion/Juggernaut-XL-v9
+# https://huggingface.co/Lykon/dreamshaper-8
+# https://huggingface.co/stablediffusionapi/deliberate-v3
 pipe = StableDiffusionControlNetPipeline.from_pretrained(
     "SG161222/Realistic_Vision_V5.1_noVAE",
     vae=vae,
@@ -59,17 +63,17 @@ source_image = load_image(f"./output/characters/{char}.png")
 # condition_image = resize_for_condition_image(source_image, 512)
 image = pipe(
     prompt="a tree in the forest",
-    # negative_prompt="ugly, disfigured, low quality, blurry, nsfw",
+    negative_prompt="low quality",
     image=source_image,
     width=512,
     height=512,
-    guidance_scale=20,  # 0 - 50
-    controlnet_conditioning_scale=1.5,  # "Illusion strength" 0-5 (1.5 is default)
+    guidance_scale=12,  # 0 - 50
+    controlnet_conditioning_scale=1.3,  # "Illusion strength" 0-5 (1.5 is default)
     control_guidance_start=0,
     control_guidance_end=1,
     generator=torch.manual_seed(123121231),
     strength=0.9,
-    num_inference_steps=25,
+    num_inference_steps=15,
 )
 
 image.images[0].save(f"output/{char}.png")
