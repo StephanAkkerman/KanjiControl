@@ -3,7 +3,7 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 
 
-def create_japanese_character_image(
+def get_char_img(
     character,
     font_path,
     font_size=200,
@@ -66,12 +66,12 @@ def create_japanese_character_image(
     y = (target_size - new_size[1]) // 2
     final.paste(resized, (x, y), resized)
 
-    final.save(f"output/characters/{character}.png")
+    return final
 
 
 if __name__ == "__main__":
-    japanese_character = "木"  # Example Japanese character.
+    japanese_character = "火"  # Example Japanese character.
     # Replace with the path to your high-quality Japanese font.
     font_file = "data/thin.ttf"
     # Todo: different thickness of characters
-    create_japanese_character_image(japanese_character, font_file)
+    get_char_img(japanese_character, font_file)
