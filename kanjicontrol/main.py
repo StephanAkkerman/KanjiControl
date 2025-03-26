@@ -6,19 +6,6 @@ from diffusers import (
     DDIMScheduler,
     StableDiffusionControlNetPipeline,
 )
-from PIL import Image
-
-
-def resize_for_condition_image(input_image: Image, resolution: int):
-    input_image = input_image.convert("RGB")
-    W, H = input_image.size
-    k = float(resolution) / min(H, W)
-    H *= k
-    W *= k
-    H = int(round(H / 64.0)) * 64
-    W = int(round(W / 64.0)) * 64
-    img = input_image.resize((W, H), resample=Image.LANCZOS)
-    return img
 
 
 class KanjiControl:
@@ -65,7 +52,6 @@ class KanjiControl:
 
         # Ask LLM to create a prompt for the image model
 
-        # condition_image = resize_for_condition_image(source_image, 512)
         image = self.pipe(
             prompt=meaning,
             negative_prompt="low quality",
